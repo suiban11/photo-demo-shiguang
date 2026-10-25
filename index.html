@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<!-- 发布镜像：线上分享链接直接打开本文件。源文件是「写真预约-demo.html」，两者内容必须一致，改一处同步另一处。 -->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#faf8f5">
+<title>拾光写真 · 预约小程序（演示样板）</title>
+<style>
+:root{
+  --paper:#faf8f5; --ink:#1a1714; --muted:#8b8177; --faint:#b3a99e;
+  --line:#eae4db; --gold:#a8834f; --dark:#15120f; --card:#fffefc;
+  --ok:#2c7a55; --warn:#b4442c;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  overflow-x:hidden;
+  font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  color:var(--ink); background:#d9d3ca;
+  display:flex; align-items:center; justify-content:center; padding:24px;
+  background-image:radial-gradient(circle at 20% 10%,#e6e0d7 0%,#cfc8bd 55%,#b9b1a5 100%);
+}
+.stage{display:flex;align-items:center;gap:36px}
+
+/* ---------- 手机外壳 ---------- */
+.phone{
+  width:390px;height:844px;background:var(--paper);border-radius:44px;
+  box-shadow:0 0 0 11px #1b1815,0 0 0 13px #302a24,0 32px 70px rgba(20,15,10,.42);
+  position:relative;overflow:hidden;display:flex;flex-direction:column;flex:none;
+}
+.notch{
+  position:absolute;top:9px;left:50%;transform:translateX(-50%);
+  width:112px;height:26px;background:#0c0a08;border-radius:16px;z-index:60;
+}
+.statusbar{
+  position:absolute;top:0;left:0;right:0;
+  height:48px;display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 26px 5px;font-size:12px;font-weight:600;letter-spacing:.02em;z-index:56;
+  color:var(--ink);transition:color .2s;
+}
+.statusbar.on-dark{color:#fff}
+.sb-right{display:flex;gap:5px;align-items:center;font-size:10.5px}
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+
+/* ---------- 底部 tab ---------- */
+.tabbar{
+  flex:none;height:64px;display:flex;background:rgba(255,254,252,.94);
+  backdrop-filter:blur(14px);border-top:1px solid var(--line);padding-bottom:6px;
+}
+.tabbar button{
+  flex:1;background:none;border:0;font:inherit;font-size:10.5px;color:var(--faint);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  cursor:pointer;letter-spacing:.03em;
+}
+.tabbar button svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button.active{color:var(--ink)}
+.tabbar button.active svg{stroke:var(--ink)}
+
+/* ---------- 通用 ---------- */
+.view{display:none;padding-bottom:24px;padding-top:48px}
+.view.active{display:block}
+#v-home{padding-top:0}
+.serif{font-family:"Songti SC","Noto Serif SC",Georgia,"Times New Roman",serif}
+.sec{padding:26px 22px 0}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+.sec-head h2{font-size:16px;font-weight:600;letter-spacing:.04em}
+.sec-head span{font-size:11px;color:var(--faint);letter-spacing:.08em}
+.btn{
+  width:100%;border:0;border-radius:10px;padding:15px;font:inherit;font-size:15px;font-weight:600;
+  background:var(--dark);color:#fff;cursor:pointer;letter-spacing:.06em;
+}
+.btn:disabled{background:#cfc8bd;cursor:not-allowed}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink);font-weight:500}
+.btn.sm{width:auto;padding:7px 14px;font-size:12px;border-radius:7px}
+
+/* ---------- 首页 ---------- */
+.hero{position:relative;height:400px;overflow:hidden;background:#2a2420}
+.hero .bg{position:absolute;inset:0;background:
+  radial-gradient(ellipse 70% 55% at 62% 28%,rgba(226,190,140,.55) 0%,rgba(180,130,80,.18) 42%,transparent 70%),
+  radial-gradient(ellipse 90% 70% at 30% 90%,rgba(60,45,35,.95) 0%,transparent 65%),
+  linear-gradient(160deg,#3b3129 0%,#241d18 55%,#15100c 100%);}
+.hero .grain{position:absolute;inset:0;opacity:.16;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");}
+.hero .silh{position:absolute;right:4px;bottom:0;width:236px;opacity:.34}
+.hero .silh path{fill:#0d0a08}
+.hero-txt{position:absolute;left:26px;bottom:44px;right:26px;color:#fff;z-index:3}
+.hero-txt .k{font-size:10.5px;letter-spacing:.42em;color:#c9ac82;margin-bottom:12px}
+.hero-txt h1{font-size:33px;line-height:1.28;font-weight:400;letter-spacing:.02em}
+.hero-txt p{font-size:12.5px;color:rgba(255,255,255,.62);margin-top:12px;letter-spacing:.06em}
+.hero-fade{position:absolute;left:0;right:0;bottom:0;height:110px;background:linear-gradient(transparent,var(--paper));z-index:2}
+
+.notice{margin:0 22px;padding:13px 15px;background:#f4efe6;border-radius:9px;display:flex;gap:9px;align-items:flex-start;font-size:12.5px;color:#6b6154;line-height:1.5}
+.notice b{color:var(--gold);flex:none;font-size:12px;letter-spacing:.06em}
+
+/* 套餐 */
+.pkgs{display:flex;flex-direction:column;gap:11px}
+.pkg{
+  position:relative;border:1px solid var(--line);border-radius:12px;padding:17px 18px;
+  background:var(--card);display:flex;justify-content:space-between;align-items:center;gap:12px;
+  cursor:pointer;transition:border-color .18s,transform .18s;
+}
+.pkg:active{transform:scale(.986)}
+.pkg.sel{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink) inset}
+.pkg .n{font-size:14.5px;font-weight:600;letter-spacing:.05em;margin-bottom:5px}
+.pkg .d{font-size:11.5px;color:var(--muted);line-height:1.55}
+.pkg .p{font-size:19px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pkg .p small{font-size:11px;font-weight:400;color:var(--faint);margin-right:3px}
+.tagbest{position:absolute;top:-8px;left:16px;background:var(--gold);color:#fff;font-size:9.5px;padding:1.5px 7px;border-radius:3px;letter-spacing:.1em}
+
+/* 作品 */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:2px}
+.work{position:relative;aspect-ratio:3/4;border-radius:7px;overflow:hidden;background:#332b25}
+.work .g{position:absolute;inset:0}
+.work .s{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:74%;opacity:.42}
+.work .s path{fill:#0b0907}
+.work .lb{position:absolute;left:0;right:0;bottom:0;padding:5px 7px;font-size:9px;color:rgba(255,255,255,.82);letter-spacing:.05em;background:linear-gradient(transparent,rgba(0,0,0,.55))}
+.w1 .g{background:radial-gradient(circle at 70% 25%,#e8c79b,#a5743f 55%,#3d2a1a)}
+.w2 .g{background:radial-gradient(circle at 30% 30%,#cfd6d4,#7d8d8c 50%,#2c3534)}
+.w3 .g{background:radial-gradient(circle at 60% 20%,#efd8c6,#be8d6c 52%,#402c20)}
+.w4 .g{background:radial-gradient(circle at 35% 28%,#dcc9a8,#9c8354 52%,#332a1c)}
+.w5 .g{background:radial-gradient(circle at 65% 30%,#c8bfd0,#82748f 52%,#2c2532)}
+.w6 .g{background:radial-gradient(circle at 40% 22%,#e5d4bd,#a98d6b 52%,#382d21)}
+.ph-note{font-size:10.5px;color:var(--faint);margin-top:11px;letter-spacing:.03em;line-height:1.6}
+
+/* 门店信息 */
+.shop{border-top:1px solid var(--line);margin-top:28px;padding:20px 22px 8px;font-size:12.5px;color:var(--muted);line-height:2}
+.shop b{color:var(--ink);font-weight:600;display:inline-block;width:56px}
+
+/* ---------- 预约页 ---------- */
+.page-head{padding:8px 22px 16px;border-bottom:1px solid var(--line)}
+.page-head h1{font-size:22px;font-weight:400;letter-spacing:.08em}
+.page-head p{font-size:11.5px;color:var(--faint);margin-top:5px;letter-spacing:.05em}
+.field{padding:0 22px;margin-top:24px}
+.field > label{display:block;font-size:11px;color:var(--faint);letter-spacing:.14em;margin-bottom:11px}
+.field > label em{font-style:normal;color:var(--warn)}
+
+.dates{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.dates::-webkit-scrollbar{display:none}
+.date{
+  flex:none;width:56px;padding:9px 0;border:1px solid var(--line);border-radius:9px;background:var(--card);
+  display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;transition:.15s;
+}
+.date .w{font-size:9.5px;color:var(--faint);letter-spacing:.05em}
+.date .d{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.date.sel{background:var(--dark);border-color:var(--dark)}
+.date.sel .w,.date.sel .d{color:#fff}
+.date.sel .w{opacity:.6}
+
+.slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slot{
+  padding:11px 0;border:1px solid var(--line);border-radius:8px;background:var(--card);
+  font-size:13px;text-align:center;cursor:pointer;transition:.15s;font-variant-numeric:tabular-nums;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+}
+.slot small{font-size:9.5px;color:var(--faint);letter-spacing:.04em}
+.slot.sel{background:var(--dark);border-color:var(--dark);color:#fff}
+.slot.sel small{color:rgba(255,255,255,.55)}
+.slot.off{background:#f2eee8;color:#c3bab0;cursor:not-allowed;text-decoration:line-through}
+.slot.off small{color:#c9c0b6}
+
+.input{
+  width:100%;border:1px solid var(--line);border-radius:9px;background:var(--card);
+  padding:12px 14px;font:inherit;font-size:13.5px;color:var(--ink);outline:none;transition:.15s;
+}
+.input:focus{border-color:var(--ink)}
+.input::placeholder{color:#c3bab0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+textarea.input{resize:none;min-height:64px;line-height:1.6}
+
+.summary{margin:26px 22px 0;padding:16px 17px;background:#f4efe6;border-radius:10px;font-size:12.5px;line-height:2}
+.summary .ln{display:flex;justify-content:space-between;color:#6b6154}
+.summary .ln b{color:var(--ink);font-weight:600}
+.summary .tot{margin-top:9px;padding-top:10px;border-top:1px solid #e4dccc;font-size:14.5px}
+.summary .tot b{font-size:17px}
+
+.foot-btn{padding:24px 22px 32px}
+
+/* ---------- 我的 ---------- */
+.empty{padding:80px 30px;text-align:center;color:var(--faint)}
+.empty svg{width:52px;height:52px;stroke:#d6cdc2;fill:none;stroke-width:1.2;margin-bottom:16px}
+.empty p{font-size:13px;line-height:1.8}
+.order{border:1px solid var(--line);border-radius:11px;background:var(--card);margin:0 22px 11px;overflow:hidden}
+.order .top{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;border-bottom:1px dashed var(--line)}
+.order .top .code{font-size:11px;color:var(--faint);letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.order .badge{font-size:10px;padding:2px 8px;border-radius:20px;letter-spacing:.06em}
+.badge.wait{background:#fdf4e8;color:#a97a2a}
+.badge.done{background:#eef7f2;color:var(--ok)}
+.badge.cancel{background:#f6f3ef;color:var(--faint)}
+.order .body{padding:13px 15px;font-size:12.5px;line-height:2;color:var(--muted)}
+.order .body b{color:var(--ink);font-weight:600}
+.order .acts{display:flex;gap:8px;padding:0 15px 13px}
+.order .acts button{flex:1;padding:8px;border-radius:7px;border:1px solid var(--line);background:none;font:inherit;font-size:11.5px;color:var(--muted);cursor:pointer}
+.order .acts button:active{background:#f6f3ef}
+
+/* ---------- 后台 ---------- */
+.admin-entry{padding:26px 22px 0}
+.admin-entry button{width:100%;border:1px dashed var(--line);background:none;padding:14px;border-radius:10px;font:inherit;font-size:12.5px;color:var(--muted);cursor:pointer;letter-spacing:.05em}
+.admin{position:absolute;inset:0;background:var(--paper);z-index:70;display:none;flex-direction:column}
+.admin.show{display:flex}
+.admin-bar{flex:none;padding:56px 20px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.admin-bar h2{font-size:15px;font-weight:600;letter-spacing:.1em}
+.admin-bar button{background:none;border:0;font:inherit;font-size:12.5px;color:var(--muted);cursor:pointer}
+.admin-body{flex:1;overflow-y:auto;padding:18px 20px 30px}
+.admin-body::-webkit-scrollbar{display:none}
+.astat{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:20px}
+.astat div{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:11px 12px}
+.astat span{display:block;font-size:10px;color:var(--faint);letter-spacing:.08em;margin-bottom:3px}
+.astat b{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+.sched{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.sched .hd{padding:11px 14px;background:#f6f2ec;font-size:11.5px;color:var(--muted);letter-spacing:.08em;display:flex;justify-content:space-between}
+.sched .r{display:flex;padding:9px 14px;border-top:1px solid var(--line);font-size:12px;align-items:center;justify-content:space-between}
+.sched .r .t{font-variant-numeric:tabular-nums;color:var(--muted);width:52px}
+.sched .r .s{font-size:11px}
+.sched .r .s.free{color:var(--ok)}
+.sched .r .s.busy{color:var(--faint)}
+.sched .r .s.mine{color:var(--gold);font-weight:600}
+.admin-note{font-size:10.5px;color:var(--faint);line-height:1.7;margin-top:14px}
+
+/* ---------- toast ---------- */
+.toast{
+  position:absolute;left:50%;bottom:96px;transform:translate(-50%,14px);
+  background:rgba(21,18,15,.93);color:#fff;padding:11px 20px;border-radius:9px;font-size:12.5px;
+  opacity:0;pointer-events:none;transition:.28s;z-index:90;max-width:300px;text-align:center;line-height:1.6;
+}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+.hint{width:250px;font-size:12px;color:#5d564d;line-height:1.9}
+.hint h3{font-size:13px;color:#2b2620;margin-bottom:10px;letter-spacing:.06em}
+.hint p{margin-bottom:12px}
+.hint code{font-family:ui-monospace,Consolas,monospace;background:rgba(255,255,255,.5);padding:1px 5px;border-radius:3px;font-size:11px}
+.hint .note{color:#8a8177;font-size:11px;border-top:1px solid rgba(0,0,0,.1);padding-top:12px}
+
+@media (max-width:900px){
+  body{padding:0;background:var(--paper);display:block}
+  .stage{gap:0}
+  .phone{width:100%;height:100vh;height:100dvh;border-radius:0;box-shadow:none}
+  .notch{display:none}
+  .statusbar{height:34px;padding-top:6px}
+  .hint{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="statusbar" id="statusbar">
+      <span id="clock">9:41</span>
+      <span class="sb-right">
+        <svg width="15" height="10" viewBox="0 0 15 10" fill="currentColor"><rect x="0" y="6" width="2.5" height="4" rx=".6"/><rect x="4" y="4" width="2.5" height="6" rx=".6"/><rect x="8" y="2" width="2.5" height="8" rx=".6"/><rect x="12" y="0" width="2.5" height="10" rx=".6"/></svg>
+        <svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor"><path d="M7 9.2 4.6 6.6a3.4 3.4 0 0 1 4.8 0L7 9.2Zm-4.9-3a7 7 0 0 1 9.8 0l-1.4 1.4a5 5 0 0 0-7 0L2.1 6.2ZM.3 4.4a9.7 9.7 0 0 1 13.4 0l-1.4 1.4a7.7 7.7 0 0 0-10.6 0L.3 4.4Z"/></svg>
+        <svg width="21" height="10" viewBox="0 0 21 10" fill="none"><rect x=".6" y=".6" width="16" height="8.8" rx="2.2" stroke="currentColor" stroke-opacity=".4"/><rect x="2.2" y="2.2" width="12.8" height="5.6" rx="1.2" fill="currentColor"/><path d="M18.4 3.6v2.8a1.6 1.6 0 0 0 0-2.8Z" fill="currentColor" fill-opacity=".5"/></svg>
+      </span>
+    </div>
+
+    <div class="screen" id="screen">
+
+      <!-- ============ 首页 ============ -->
+      <section class="view active" id="v-home">
+        <div class="hero">
+          <div class="bg"></div>
+          <div class="grain"></div>
+          <svg class="silh" viewBox="0 0 100 120" preserveAspectRatio="xMidYMax meet"><path d="M50 20c9.4 0 16.5 7.4 16.5 17.6 0 7.3-3.1 13.4-7.9 16.5 12.6 4.2 21.8 12.8 25.1 25.3 2.1 7.9 2.8 15.6 2.9 22.6H13.4c.1-7 0-14.7 2.9-22.6 3.3-12.5 12.5-21.1 25.1-25.3-4.8-3.1-7.9-9.2-7.9-16.5C33.5 27.4 40.6 20 50 20Z"/></svg>
+          <div class="hero-fade"></div>
+          <div class="hero-txt">
+            <div class="k">SHIGUANG STUDIO</div>
+            <h1 class="serif">把光留在<br>该留的地方</h1>
+            <p>人像写真 · 证件照 · 汉服 · 情侣</p>
+          </div>
+        </div>
+
+        <div class="notice">
+          <b>预约</b>
+          <span>档期实时可见，选好时间直接约，不用再反复问「那天有空吗」。</span>
+        </div>
+
+        <div class="sec">
+          <div class="sec-head"><h2 class="serif">拍摄套餐</h2><span>共 3 档</span></div>
+          <div class="pkgs" id="pkgList"></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-head"><h2 class="serif">近期作品</h2><span>共 120+ 组</span></div>
+          <div class="grid">
+            <div class="work w1"><div class="g"></div><svg class="s" viewBox="0 0 100 120"><path d="M50 20c9.4 0 16.5 7.4 16.5 17.6 0 7.3-3.1 13.4-7.9 16.5 12.6 4.2 21.8 12.8 25.1 25.3 2.1 7.9 2.8 15.6 2.9 22.6H13.4c.1-7 0-14.7 2.9-22.6 3.3-12.5 12.5-21.1 25.1-25.3-4.8-3.1-7.9-9.2-7.9-16.5C33.5 27.4 40.6 20 50 20Z"/></svg><div class="lb">暖光 · 室内</div></div>
+            <div class="work w2"><div class="g"></div><svg class="s" viewBox="0 0 100 120"><path d="M50 20c9.4 0 16.5 7.4 16.5 17.6 0 7.3-3.1 13.4-7.9 16.5 12.6 4.2 21.8 12.8 25.1 25.3 2.1 7.9 2.8 15.6 2.9 22.6H13.4c.1-7 0-14.7 2.9-22.6 3.3-12.5 12.5-21.1 25.1-25.3-4.8-3.1-7.9-9.2-7.9-16.5C33.5 27.4 40.6 20 50 20Z"/></svg><div class="lb">冷调 · 街拍</div></div>
+            <div class="work w3"><div class="g"></div><svg class="s" viewBox="0 0 100 120"><path d="M50 20c9.4 0 16.5 7.4 16.5 17.6 0 7.3-3.1 13.4-7.9 16.5 12.6 4.2 21.8 12.8 25.1 25.3 2.1 7.9 2.8 15.6 2.9 22.6H13.4c.1-7 0-14.7 2.9-22.6 3.3-12.5 12.5-21.1 25.1-25.3-4.8-3.1-7.9-9.2-7.9-16.5C33.5 27.4 40.6 20 50 20Z"/></svg><div class="lb">奶油 · 亲子</div></div>
+            <div class="work w4"><div class="g"></div><svg class="s" viewBox="0 0 100 120"><path d="M50 20c9.4 0 16.5 7.4 16.5 17.6 0 7.3-3.1 13.4-7.9 16.5 12.6 4.2 21.8 12.8 25.1 25.3 2.1 7.9 2.8 15.6 2.9 22.6H13.4c.1-7 0-14.7 2.9-22.6 3.3-12.5 12.5-21.1 25.1-25.3-4.8-3.1-7.9-9.2-7.9-16.5C33.5 27.4 40.6 20 50 20Z"/></svg><div class="lb">复古 · 胶片</div></div>
+            <div class="work w5"><div class="g"></div><svg class="s" viewBox="0 0 100 120"><path d="M50 20c9.4 0 16.5 7.4 16.5 17.6 0 7.3-3.1 13.4-7.9 16.5 12.6 4.2 21.8 12.8 25.1 25.3 2.1 7.9 2.8 15.6 2.9 22.6H13.4c.1-7 0-14.7 2.9-22.6 3.3-12.5 12.5-21.1 25.1-25.3-4.8-3.1-7.9-9.2-7.9-16.5C33.5 27.4 40.6 20 50 20Z"/></svg><div class="lb">暗夜 · 港风</div></div>
+            <div class="work w6"><div class="g"></div><svg class="s" viewBox="0 0 100 120"><path d="M50 20c9.4 0 16.5 7.4 16.5 17.6 0 7.3-3.1 13.4-7.9 16.5 12.6 4.2 21.8 12.8 25.1 25.3 2.1 7.9 2.8 15.6 2.9 22.6H13.4c.1-7 0-14.7 2.9-22.6 3.3-12.5 12.5-21.1 25.1-25.3-4.8-3.1-7.9-9.2-7.9-16.5C33.5 27.4 40.6 20 50 20Z"/></svg><div class="lb">自然 · 外景</div></div>
+          </div>
+          <p class="ph-note">※ 图片为效果示意，正式上线换成你们的成片。</p>
+        </div>
+
+        <div class="shop">
+          <div><b>地址</b>山西阳泉 · 滨河新天地 3F-08</div>
+          <div><b>营业</b>10:00 – 20:00（周一休）</div>
+          <div><b>电话</b>0353-888 0000</div>
+        </div>
+      </section>
+
+      <!-- ============ 预约页 ============ -->
+      <section class="view" id="v-book">
+        <div class="page-head">
+          <h1 class="serif">预约拍摄</h1>
+          <p>选好套餐和时间，我们提前一天联系你确认</p>
+        </div>
+
+        <div class="field">
+          <label>选择套餐 <em>*</em></label>
+          <div class="pkgs" id="pkgList2"></div>
+        </div>
+
+        <div class="field">
+          <label>选择日期 <em>*</em></label>
+          <div class="dates" id="dateList"></div>
+        </div>
+
+        <div class="field">
+          <label>选择时段 <em>*</em></label>
+          <div class="slots" id="slotList"></div>
+        </div>
+
+        <div class="field">
+          <label>你的称呼 <em>*</em></label>
+          <input class="input" id="fName" placeholder="例如：王小姐" maxlength="12">
+        </div>
+
+        <div class="field">
+          <label>手机号 <em>*</em></label>
+          <input class="input" id="fPhone" type="tel" placeholder="用于接收确认通知" maxlength="11" inputmode="numeric">
+        </div>
+
+        <div class="field">
+          <label>备注（选填）</label>
+          <textarea class="input" id="fNote" placeholder="例如：想拍证件照，需要换正装"></textarea>
+        </div>
+
+        <div class="summary" id="summary">
+          <div class="ln"><span>套餐</span><b id="sumPkg">未选择</b></div>
+          <div class="ln"><span>时间</span><b id="sumTime">未选择</b></div>
+          <div class="ln tot"><span>合计</span><b id="sumPrice">—</b></div>
+        </div>
+
+        <div class="foot-btn">
+          <button class="btn" id="btnSubmit">提交预约</button>
+        </div>
+      </section>
+
+      <!-- ============ 我的 ============ -->
+      <section class="view" id="v-mine">
+        <div class="page-head">
+          <h1 class="serif">我的预约</h1>
+          <p>改期请提前 24 小时，当天取消需到店处理</p>
+        </div>
+        <div style="padding-top:20px" id="orderList"></div>
+        <div class="admin-entry">
+          <button id="btnAdmin">进入商家后台 →</button>
+        </div>
+      </section>
+
+    </div>
+
+    <nav class="tabbar">
+      <button data-view="home" class="active">
+        <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/></svg>首页
+      </button>
+      <button data-view="book">
+        <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>预约
+      </button>
+      <button data-view="mine">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c1.2-4 4-6 7.5-6s6.3 2 7.5 6"/></svg>我的
+      </button>
+    </nav>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- 商家后台 -->
+    <div class="admin" id="adminPanel">
+      <div class="admin-bar">
+        <h2>商家后台</h2>
+        <button id="btnAdminClose">关闭</button>
+      </div>
+      <div class="admin-body">
+        <div class="astat">
+          <div><span>今日预约</span><b id="stToday">0</b></div>
+          <div><span>本周待拍</span><b id="stWeek">0</b></div>
+          <div><span>空档时段</span><b id="stFree">0</b></div>
+        </div>
+        <div id="schedBox"></div>
+        <div id="adminOrders"></div>
+        <p class="admin-note">演示数据只保存在你这台设备的浏览器里，换设备或清缓存就清空，不会上传到任何服务器。</p>
+      </div>
+    </div>
+
+  </div>
+
+  <aside class="hint">
+    <h3>点开就能用，全部可点</h3>
+    <p>选套餐 → 选日期 → 选时段 → 提交 → 在「我的」查看预约 → 进「商家后台」核销。</p>
+    <p>灰色划掉的时段表示已被约走，用来演示不会撞档。作品图为占位效果，正式上线换成你的成片。</p>
+    <p class="note">演示数据只保存在你这台设备的浏览器里，换设备或清缓存就清空，不会收集任何信息。</p>
+  </aside>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORE_KEY = "shiguang_bookings_v1";
+
+  var PKGS = [
+    { id:"p1", name:"基础写真", desc:"1 套服装 · 20 张精修 · 40 分钟", price:399 },
+    { id:"p2", name:"主题写真", desc:"3 套服装 · 40 张精修 · 90 分钟 · 全套妆造", price:899, best:true },
+    { id:"p3", name:"情侣/闺蜜", desc:"2 人 · 50 张精修 · 120 分钟 · 外景可选", price:1299 }
+  ];
+
+  var SLOTS = ["10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00"];
+  var WEEK = ["日","一","二","三","四","五","六"];
+
+  var state = { pkg:null, date:null, slot:null };
+
+  /* ---------- 工具 ---------- */
+  function $(id){ return document.getElementById(id); }
+  function pad(n){ return n<10 ? "0"+n : ""+n; }
+  function ymd(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+  function hash(s){
+    var h = 2166136261;
+    for (var i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return Math.abs(h);
+  }
+  function loadOrders(){
+    try{ return JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); }catch(e){ return []; }
+  }
+  function saveOrders(list){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(list)); }catch(e){}
+  }
+  function isTaken(date, slot){
+    var orders = loadOrders();
+    for (var i=0;i<orders.length;i++){
+      if (orders[i].status !== "cancel" && orders[i].date === date && orders[i].slot === slot) return true;
+    }
+    return hash(date + "|" + slot) % 100 < 32;
+  }
+  function toast(msg){
+    var t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(t._tm);
+    t._tm = setTimeout(function(){ t.classList.remove("show"); }, 2200);
+  }
+  function fmtDateCN(dateStr){
+    var p = dateStr.split("-");
+    var d = new Date(+p[0], +p[1]-1, +p[2]);
+    return p[1]+"月"+p[2]+"日 周"+WEEK[d.getDay()];
+  }
+  function clock(){
+    var d = new Date();
+    $("clock").textContent = d.getHours() + ":" + pad(d.getMinutes());
+  }
+
+  /* ---------- 套餐渲染 ---------- */
+  function pkgHTML(p, clickable){
+    return '<div class="pkg'+(state.pkg===p.id?" sel":"")+'" data-pkg="'+p.id+'">'+
+      (p.best?'<span class="tagbest">最多人选</span>':'')+
+      '<div><div class="n">'+p.name+'</div><div class="d">'+p.desc+'</div></div>'+
+      '<div class="p">'+(clickable?'<small>¥</small>'+p.price:'<small>¥</small>'+p.price)+'</div>'+
+    '</div>';
+  }
+  function renderPkgs(){
+    var a = "", b = "";
+    for (var i=0;i<PKGS.length;i++){ a += pkgHTML(PKGS[i], false); b += pkgHTML(PKGS[i], true); }
+    $("pkgList").innerHTML = a;
+    $("pkgList2").innerHTML = b;
+    bindPkg($("pkgList"));
+    bindPkg($("pkgList2"));
+  }
+  function bindPkg(root){
+    var items = root.querySelectorAll("[data-pkg]");
+    for (var i=0;i<items.length;i++){
+      items[i].addEventListener("click", function(){
+        state.pkg = this.getAttribute("data-pkg");
+        renderPkgs();
+        renderSummary();
+      });
+    }
+  }
+
+  /* ---------- 日期 ---------- */
+  function renderDates(){
+    var box = $("dateList"), html = "", today = new Date();
+    for (var i=0;i<14;i++){
+      var d = new Date(today.getFullYear(), today.getMonth(), today.getDate()+i);
+      var key = ymd(d);
+      var label = i===0 ? "今天" : (i===1 ? "明天" : "周"+WEEK[d.getDay()]);
+      html += '<div class="date'+(state.date===key?" sel":"")+'" data-date="'+key+'">'+
+        '<span class="w">'+label+'</span><span class="d">'+pad(d.getDate())+'</span></div>';
+    }
+    box.innerHTML = html;
+    var items = box.querySelectorAll("[data-date]");
+    for (var j=0;j<items.length;j++){
+      items[j].addEventListener("click", function(){
+        state.date = this.getAttribute("data-date");
+        state.slot = null;
+        renderDates();
+        renderSlots();
+        renderSummary();
+      });
+    }
+  }
+
+  /* ---------- 时段 ---------- */
+  function renderSlots(){
+    var box = $("slotList");
+    if (!state.date){
+      box.innerHTML = '<div style="grid-column:1/-1;padding:18px;text-align:center;color:#b3a99e;font-size:12.5px;border:1px dashed #eae4db;border-radius:9px">请先选择日期</div>';
+      return;
+    }
+    var html = "";
+    for (var i=0;i<SLOTS.length;i++){
+      var t = SLOTS[i];
+      var taken = isTaken(state.date, t);
+      var cls = "slot" + (taken ? " off" : "") + (state.slot===t ? " sel" : "");
+      html += '<div class="'+cls+'" data-slot="'+t+'">'+t+'<small>'+(taken?"已约":"可约")+'</small></div>';
+    }
+    box.innerHTML = html;
+    var items = box.querySelectorAll("[data-slot]");
+    for (var j=0;j<items.length;j++){
+      items[j].addEventListener("click", function(){
+        if (this.classList.contains("off")) return;
+        state.slot = this.getAttribute("data-slot");
+        renderSlots();
+        renderSummary();
+      });
+    }
+  }
+
+  /* ---------- 摘要 ---------- */
+  function renderSummary(){
+    var p = null;
+    for (var i=0;i<PKGS.length;i++) if (PKGS[i].id===state.pkg) p = PKGS[i];
+    $("sumPkg").textContent = p ? p.name + " ¥" + p.price : "未选择";
+    $("sumTime").textContent = (state.date ? fmtDateCN(state.date) : "未选择") + (state.slot ? " " + state.slot : "");
+    $("sumPrice").textContent = p ? "¥" + p.price : "—";
+  }
+
+  /* ---------- 提交 ---------- */
+  function submit(){
+    if (!state.pkg) return toast("先选一个拍摄套餐");
+    if (!state.date) return toast("选一个日期");
+    if (!state.slot) return toast("选一个时段");
+    var name = $("fName").value.trim();
+    var phone = $("fPhone").value.trim();
+    if (name.length < 1) return toast("请填写你的称呼");
+    if (!/^1[3-9]\d{9}$/.test(phone)) return toast("手机号格式不对，请检查");
+
+    // 模拟服务端二次校验（防撞档）
+    if (isTaken(state.date, state.slot)){
+      toast("该时段刚被约走，请重新选择");
+      state.slot = null;
+      renderSlots();
+      renderSummary();
+      return;
+    }
+
+    var orders = loadOrders();
+    for (var i=0;i<orders.length;i++){
+      if (orders[i].status !== "cancel" && orders[i].phone === phone && orders[i].date === state.date){
+        return toast("同一手机号同一天只能约 1 次");
+      }
+    }
+
+    var pkg = null;
+    for (var k=0;k<PKGS.length;k++) if (PKGS[k].id===state.pkg) pkg = PKGS[k];
+
+    var order = {
+      id: "SG" + Date.now().toString().slice(-8),
+      pkg: pkg.name,
+      price: pkg.price,
+      date: state.date,
+      slot: state.slot,
+      name: name,
+      phone: phone,
+      note: $("fNote").value.trim(),
+      status: "wait",
+      created: Date.now()
+    };
+    orders.unshift(order);
+    saveOrders(orders);
+
+    $("fName").value = ""; $("fPhone").value = ""; $("fNote").value = "";
+    state.pkg = null; state.slot = null;
+    renderPkgs(); renderSlots(); renderSummary();
+    renderOrders();
+    switchView("mine");
+    toast("预约已提交，我们会尽快联系你");
+  }
+
+  /* ---------- 我的预约 ---------- */
+  function renderOrders(){
+    var orders = loadOrders();
+    var box = $("orderList");
+    if (!orders.length){
+      box.innerHTML = '<div class="empty"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17M9 15h6"/></svg><p>还没有预约记录<br>去「预约」挑个时间吧</p></div>';
+      return;
+    }
+    var html = "";
+    for (var i=0;i<orders.length;i++){
+      var o = orders[i];
+      var badge = o.status === "wait" ? '<span class="badge wait">待拍摄</span>'
+                : o.status === "done" ? '<span class="badge done">已完成</span>'
+                : '<span class="badge cancel">已取消</span>';
+      html += '<div class="order">'+
+        '<div class="top"><span class="code">'+o.id+'</span>'+badge+'</div>'+
+        '<div class="body">'+
+          '<div><b>'+o.pkg+'</b> · ¥'+o.price+'</div>'+
+          '<div>'+fmtDateCN(o.date)+' '+o.slot+'</div>'+
+          '<div>'+o.name+' · '+o.phone.replace(/(\d{3})\d{4}(\d{4})/,"$1****$2")+'</div>'+
+          (o.note ? '<div>备注：'+o.note+'</div>' : '')+
+        '</div>'+
+        (o.status==="wait" ? '<div class="acts"><button data-cancel="'+o.id+'">取消预约</button></div>' : '')+
+      '</div>';
+    }
+    box.innerHTML = html;
+    var btns = box.querySelectorAll("[data-cancel]");
+    for (var j=0;j<btns.length;j++){
+      btns[j].addEventListener("click", function(){
+        var id = this.getAttribute("data-cancel");
+        var list = loadOrders();
+        for (var m=0;m<list.length;m++) if (list[m].id===id) list[m].status = "cancel";
+        saveOrders(list);
+        renderOrders(); renderSlots();
+        toast("已取消，档期已释放");
+      });
+    }
+  }
+
+  /* ---------- 后台 ---------- */
+  function renderAdmin(){
+    var orders = loadOrders();
+    var today = ymd(new Date());
+    var todayCnt = 0, weekCnt = 0;
+    for (var i=0;i<orders.length;i++){
+      if (orders[i].status === "cancel") continue;
+      if (orders[i].date === today) todayCnt++;
+      weekCnt++;
+    }
+    $("stToday").textContent = todayCnt;
+    $("stWeek").textContent = weekCnt;
+
+    var free = 0;
+    for (var s=0;s<SLOTS.length;s++) if (!isTaken(today, SLOTS[s])) free++;
+    $("stFree").textContent = free;
+
+    // 今日排期
+    var html = '<div class="sched"><div class="hd"><span>今日排期 · '+fmtDateCN(today)+'</span><span>'+free+' 个空档</span></div>';
+    for (var k=0;k<SLOTS.length;k++){
+      var t = SLOTS[k], mine = null;
+      for (var n=0;n<orders.length;n++){
+        if (orders[n].status!=="cancel" && orders[n].date===today && orders[n].slot===t) mine = orders[n];
+      }
+      var st, cls;
+      if (mine){ st = mine.name + " · " + mine.pkg; cls = "mine"; }
+      else if (isTaken(today, t)){ st = "已约"; cls = "busy"; }
+      else { st = "空档"; cls = "free"; }
+      html += '<div class="r"><span class="t">'+t+'</span><span class="s '+cls+'">'+st+'</span></div>';
+    }
+    html += '</div>';
+    $("schedBox").innerHTML = html;
+
+    // 订单管理
+    var list = "";
+    if (!orders.length){
+      list = '<div style="text-align:center;color:#b3a99e;font-size:12px;padding:24px 0">暂无预约</div>';
+    } else {
+      for (var q=0;q<orders.length;q++){
+        var o = orders[q];
+        list += '<div class="order">'+
+          '<div class="top"><span class="code">'+o.id+' · '+o.phone+'</span>'+
+            '<span class="badge '+(o.status==="wait"?"wait":o.status==="done"?"done":"cancel")+'">'+
+            (o.status==="wait"?"待拍摄":o.status==="done"?"已完成":"已取消")+'</span></div>'+
+          '<div class="body"><div><b>'+o.pkg+'</b> ¥'+o.price+'</div><div>'+fmtDateCN(o.date)+' '+o.slot+' · '+o.name+'</div></div>'+
+          (o.status==="wait" ? '<div class="acts"><button data-done="'+o.id+'">核销完成</button></div>' : '')+
+        '</div>';
+      }
+    }
+    $("adminOrders").innerHTML = '<div style="font-size:11px;color:#b3a99e;letter-spacing:.14em;margin:0 0 10px">订单管理</div>' + list;
+
+    var btns = $("adminOrders").querySelectorAll("[data-done]");
+    for (var z=0;z<btns.length;z++){
+      btns[z].addEventListener("click", function(){
+        var id = this.getAttribute("data-done");
+        var l = loadOrders();
+        for (var m=0;m<l.length;m++) if (l[m].id===id) l[m].status = "done";
+        saveOrders(l);
+        renderAdmin(); renderOrders();
+        toast("已核销");
+      });
+    }
+  }
+
+  /* ---------- 视图切换 ---------- */
+  function switchView(name){
+    var views = document.querySelectorAll(".view");
+    for (var i=0;i<views.length;i++) views[i].classList.remove("active");
+    $("v-" + name).classList.add("active");
+    var tabs = document.querySelectorAll(".tabbar button");
+    for (var j=0;j<tabs.length;j++){
+      tabs[j].classList.toggle("active", tabs[j].getAttribute("data-view") === name);
+    }
+    $("screen").scrollTop = 0;
+    var sb = $("statusbar");
+    sb.classList.toggle("on-dark", name === "home");
+  }
+
+  /* ---------- 初始化 ---------- */
+  function init(){
+    clock();
+    setInterval(clock, 30000);
+    renderPkgs();
+    renderDates();
+    renderSlots();
+    renderSummary();
+    renderOrders();
+    switchView("home");
+
+    var tabs = document.querySelectorAll(".tabbar button");
+    for (var i=0;i<tabs.length;i++){
+      tabs[i].addEventListener("click", function(){
+        switchView(this.getAttribute("data-view"));
+      });
+    }
+    $("btnSubmit").addEventListener("click", submit);
+    $("screen").addEventListener("scroll", function(){
+      var onDark = $("v-home").classList.contains("active") && this.scrollTop < 180;
+      $("statusbar").classList.toggle("on-dark", onDark);
+    });
+    $("btnAdmin").addEventListener("click", function(){
+      renderAdmin();
+      $("adminPanel").classList.add("show");
+    });
+    $("btnAdminClose").addEventListener("click", function(){
+      $("adminPanel").classList.remove("show");
+    });
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
